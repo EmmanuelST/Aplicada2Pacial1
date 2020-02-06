@@ -28,6 +28,7 @@ namespace Aplicada2Parcial1.Models
         public decimal Ganancias { get; set; }
 
         [Required(ErrorMessage = "Es necesario fijar un precio")]
+        [Range(typeof(decimal), minimum:"1",maximum:"100000000", ErrorMessage = "Las ganancias estan fuera de rango")]
         public decimal Precio { get; set; }
 
         public Articulos()
