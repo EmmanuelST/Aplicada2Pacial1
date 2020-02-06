@@ -1,0 +1,171 @@
+﻿@page "/RegistroArticulos"
+
+@using Aplicada2Parcial1.Models;
+@using Aplicada2Parcial1.Controllers;
+
+<div class="container">
+    <h3 class="display-4 text-center">Registro</h3>
+
+
+    <EditForm Model="Articulo" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+
+        <div class="form-group">
+            <label for="IdInput">Id</label>
+            <InputNumber Id="IdInput" @bind-Value="Articulo.ArticuloId" class="form-control"></InputNumber>
+            <button type="button" class="btn btn-outline-primary mt-2" @onclick="Buscar">Buscar</button>
+
+        </div>
+
+        <div class="form-group">
+            <label for="FechaInput">Fecha</label>
+            <InputDate Id="FechaInput" @bind-Value="Articulo.Fecha" class="form-control"></InputDate>
+        </div>
+
+        <div class="form-group">
+            <label for="DescripcionInput">Descripcion</label>
+            <InputText Id="DescripcionInput" @bind-Value="Articulo.Descripcion" class="form-control"></InputText>
+        </div>
+
+        <div class="form-group">
+            <label for="CostoInput">Costo</label>
+            <InputNumber Id="CostoInput" @bind-Value="Articulo.Costo" @oninput="Calcular" @onfocusin="Calcular" @onfocusout="Calcular" class="form-control"></InputNumber>
+        </div>
+
+        <div class="form-group">
+            <label for="GananciasInput">Ganancia</label>
+            <InputNumber Id="GananciasInput" @bind-Value="Articulo.Ganancias" @oninput="Calcular" @onfocusin="Calcular" @onfocusout="Calcular" class="form-control"></InputNumber>
+        </div>
+
+        <div class="form-group">
+            <label for="PrecioInput">Precio</label>
+            <InputNumber Id="PrecioInput" @bind-Value="Articulo.Precio" class="form-control" ReadOnly="true"></InputNumber>
+        </div>
+        <small class="text-muted">@Mensaje</small>
+        <ValidationSummary />
+        <div>
+            <button class="btn btn-primary" type="button" @onclick="Limpiar">Limpiar</button>
+            <button class="btn btn-success" type="submit">Guardar</button>
+            <button class="btn btn-danger" type="button" @onclick="Eliminar">Eliminar</button>
+        </div>
+
+
+    </EditForm>
+
+
+</div>
+
+
+
+@code {
+
+    public Articulos Articulo { get; set; }
+    public string Mensaje { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Articulo = new Articulos();
+    }
+
+    private void Calcular()
+    {
+        if (Articulo.Costo >= 0 && Articulo.Ganancias >= 0)
+        {
+
+            Articulo.Precio = Articulo.Costo + (Articulo.Costo * (Articulo.Ganancias / 100));
+        }
+
+    }
+
+    private void Guardar()
+    {
+        ArticulosController db = new ArticulosController();
+
+        if (Articulo.ArticuloId <= 0)
+        {
+            if (db.Guardar(Articulo))
+            {
+                Articulo = new Articulos();
+                Mensaje = "Guardado correctamente";
+            }
+            else
+            {
+                Mensaje = "NO se pudo guardar";
+            }
+        }
+        else
+        {
+            if (db.Modificar(Articulo))
+            {
+                Articulo = new Articulos();
+                Mensaje = "Modificado correctamente";
+            }
+            else
+            {
+                Mensaje = "NO se pudo modificar";
+            }
+        }
+    }
+
+    private void Limpiar()
+    {
+        Articulo = new Articulos();
+    }
+
+    private void Eliminar()
+    {
+        ArticulosController db = new ArticulosController();
+
+        try
+        {
+            if (Articulo.ArticuloId > 0)
+            {
+                if (db.Eliminar(Articulo.ArticuloId))
+                {
+                    Mensaje = "Eliminado correctamente";
+                    Articulo = new Articulos();
+                }
+                else
+                {
+                    Mensaje = "No se pudo eliminar";
+                }
+            }
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
+    private void Buscar()
+    {
+        ArticulosController db = new ArticulosController();
+        Articulos articuloTemp;
+
+        try
+        {
+            if (Articulo.ArticuloId > 0)
+            {
+                articuloTemp = db.Buscar(Articulo.ArticuloId);
+
+                if (articuloTemp != null)
+                {
+                    Articulo = articuloTemp;
+                }
+                else
+                {
+                    Mensaje = "No se pudo encontrar";
+                }
+
+            }
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
+
+}
